@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1>Socio - Post Your Pictures with Captions</h1>
+        <div id="auth">
+            <button id="login-btn">Login</button>
+            <button id="signup-btn">Sign Up</button>
+            <button id="logout-btn" style="display: none;">Logout</button>
+        </div>
+        <div id="login-form" class="auth-form" style="display: none;">
+            <input type="text" id="login-username" placeholder="Username">
+            <input type="password" id="login-password" placeholder="Password">
+            <button id="login-submit">Login</button>
+        </div>
+        <div id="signup-form" class="auth-form" style="display: none;">
+            <input type="text" id="signup-username" placeholder="Username">
+            <input type="password" id="signup-password" placeholder="Password">
+            <button id="signup-submit">Sign Up</button>
+        </div>
+        <button id="dark-mode-toggle">Toggle Dark Mode</button>
+        <form id="uploadForm" enctype="multipart/form-data" style="display: none;">
+            <input type="file" name="image" id="image" required>
+            <input type="text" name="caption" id="caption" placeholder="Enter caption" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="posts"></div>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
