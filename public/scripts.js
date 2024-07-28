@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('uploadForm');
     const postsContainer = document.getElementById('posts');
     const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const toggleLayoutBtn = document.getElementById('toggle-layout');
+    const layoutConfig = document.getElementById('layout-config');
+    const postsPerRowInput = document.getElementById('posts-per-row');
+    const postSizeInput = document.getElementById('post-size');
+    const postsPerRowValue = document.getElementById('posts-per-row-value');
+    const postSizeValue = document.getElementById('post-size-value');
 
     let token = localStorage.getItem('token');
 
@@ -116,73 +122,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayPost(post) {
         const postElement = document.createElement('div');
-        postElement.className = 'post';
+        postElement.classList.add('post');
         postElement.dataset.id = post._id;
         postElement.innerHTML = `
-            <img src="${post.imagePath}" alt="Post Image">
+            <img src="${post.imagePath}" alt="Post image">
             <p>${post.caption}</p>
-            <button class="update-btn" data-id="${post._id}">Update</button>
-            <button class="delete-btn" data-id="${post._id}">Delete</button>
+            <button onclick="editPost('${post._id}')">Edit</button>
+            <button onclick="deletePost('${post._id}')">Delete</button>
         `;
-        postsContainer.prepend(postElement);
-
-        postElement.querySelector('.update-btn').addEventListener('click', () => showUpdateForm(post));
-        postElement.querySelector('.delete-btn').addEventListener('click', () => deletePost(post._id));
+        postsContainer.appendChild(postElement);
     }
 
-    function showUpdateForm(post) {
+    window.editPost = function (postId) {
+        const postElement = postsContainer.querySelector(`[data-id="${postId}"]`);
+        const caption = postElement.querySelector('p').textContent;
         const updateForm = document.createElement('form');
-        updateForm.className = 'update-form';
         updateForm.innerHTML = `
-            <input type="file" name="image" id="update-image">
-            <input type="text" name="caption" id="update-caption" value="${post.caption}" required>
-            <button type="submit">Save</button>
-            <button type="button" class="cancel-btn">Cancel</button>
+            <input type="text" name="caption" value="${caption}">
+            <button type="submit">Update</button>
         `;
-
-        const postElement = document.querySelector(`.post[data-id="${post._id}"]`);
+        updateForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(updateForm);
+            try {
+                const response = await fetch(`/api/posts/${postId}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': token },
+                    body: formData
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    postElement.querySelector('p').textContent = result.caption;
+                    updateForm.remove();
+                } else {
+                    console.error(result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
         postElement.appendChild(updateForm);
+    };
 
-        updateForm.addEventListener('submit', (event) => updatePost(event, post._id, updateForm));
-        updateForm.querySelector('.cancel-btn').addEventListener('click', () => updateForm.remove());
-    }
-
-    function updatePost(event, postId, form) {
-        event.preventDefault();
-        const formData = new FormData(form);
-
-        fetch(`/api/posts/${postId}`, {
-            method: 'PUT',
-            headers: { 'Authorization': token },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(updatedPost => {
-            const postElement = document.querySelector(`.post[data-id="${updatedPost._id}"]`);
-            postElement.querySelector('img').src = updatedPost.imagePath;
-            postElement.querySelector('p').innerText = updatedPost.caption;
-            form.remove();
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function deletePost(postId) {
-        fetch(`/api/posts/${postId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': token }
-        })
-        .then(() => {
-            document.querySelector(`.post[data-id="${postId}"]`).remove();
-        })
-        .catch(error => console.error('Error:', error));
-    }
+    window.deletePost = async function (postId) {
+        try {
+            const response = await fetch(`/api/posts/${postId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': token }
+            });
+            if (response.ok) {
+                const postElement = postsContainer.querySelector(`[data-id="${postId}"]`);
+                postElement.remove();
+            } else {
+                console.error('Failed to delete post.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
 
     darkModeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
     });
 
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-    }
+    toggleLayoutBtn.addEventListener('click', () => {
+        layoutConfig.style.display = layoutConfig.style.display === 'none' ? 'block' : 'none';
+    });
+
+    postsPerRowInput.addEventListener('input', () => {
+        const postsPerRow = postsPerRowInput.value;
+        postsPerRowValue.textContent = postsPerRow;
+        postsContainer.style.gridTemplateColumns = `repeat(${postsPerRow}, 1fr)`;
+    });
+
+    postSizeInput.addEventListener('input', () => {
+        const postSize = postSizeInput.value;
+        postSizeValue.textContent = postSize;
+        const postElements = document.querySelectorAll('.post');
+        postElements.forEach(post => {
+            post.style.width = `${postSize}%`;
+        });
+    });
 });
