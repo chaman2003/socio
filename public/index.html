@@ -8,12 +8,16 @@
 </head>
 <body>
     <div id="app">
-        <h1>Socio - Post Your Pictures with Captions</h1>
+        <h1>Socio - Post Your Memories</h1>
         <div id="auth">
             <button id="login-btn">Login</button>
             <button id="signup-btn">Sign Up</button>
             <button id="logout-btn" style="display: none;">Logout</button>
         </div>
+        <footer id="footer">
+            Built by Chammy
+        </footer>
+    
         <div id="login-form" class="auth-form" style="display: none;">
             <input type="text" id="login-username" placeholder="Username">
             <input type="password" id="login-password" placeholder="Password">
@@ -25,12 +29,26 @@
             <button id="signup-submit">Sign Up</button>
         </div>
         <button id="dark-mode-toggle">Toggle Dark Mode</button>
+       
+        
+        <!-- Layout Configuration Section -->
+        <div id="layout-config" style="display: none;">
+            <button id="toggle-layout">Toggle Layout</button>
+            <label for="posts-per-row">Posts per row: <span id="posts-per-row-value">3</span></label>
+            <input type="range" id="posts-per-row" min="1" max="5" value="3">
+            
+            <label for="post-size">Post size: <span id="post-size-value">30</span>%</label>
+            <input type="range" id="post-size" min="10" max="50" value="30">
+        </div>
+        
         <form id="uploadForm" enctype="multipart/form-data" style="display: none;">
             <input type="file" name="image" id="image" required>
             <input type="text" name="caption" id="caption" placeholder="Enter caption" required>
             <button type="submit">Upload</button>
         </form>
-        <div id="posts"></div>
+
+        <div id="posts" class="grid-layout"></div>
+        <div> <img src="bg2.jpg" alt="Login Image" id="login-image"></div>
     </div>
     <script src="scripts.js"></script>
 </body>
